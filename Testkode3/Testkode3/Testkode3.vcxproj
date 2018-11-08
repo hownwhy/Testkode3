@@ -115,6 +115,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BounceBack.hpp" />
+    <ClInclude Include="BulkCell.hpp" />
+    <ClInclude Include="Cell.hpp" />
+    <ClInclude Include="Dynamics.hpp" />
+    <ClInclude Include="Globals.hpp" />
+    <ClInclude Include="Grid.hpp" />
+    <ClInclude Include="Neighbours.hpp" />
+    <ClInclude Include="SolidCell.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="MainBak.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
