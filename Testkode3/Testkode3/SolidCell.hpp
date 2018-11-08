@@ -28,9 +28,9 @@ public:
 		}
 	}
 
-	void printClassType() override{
-		 std::cout << "SolidCell" << std::endl;
-	}
+	//void printClassType() override{
+	//	 std::cout << "SolidCell" << std::endl;
+	//}
 
 	char getCellTypeChar() override {
 		return 'S';
