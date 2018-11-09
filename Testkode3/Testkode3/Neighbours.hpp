@@ -13,16 +13,16 @@ private:
 	std::array<std::shared_ptr<Cell>, nNeighbours> neighbours;
 
 public:
-	void setNeighbour(const int neighbourIndex, std::shared_ptr<Cell> cell) {
+	void setNeighbour(const int neighbourIndex, const std::shared_ptr<Cell> cell) {
 		neighbours[neighbourIndex] = cell;
 	}	
 
-	std::shared_ptr<Cell> getNeighbour(int direction) const {
+	std::shared_ptr<Cell> getNeighbour(const int direction) const {
 		return neighbours[direction];
 	}
 
-	template<typename CellType>
+	/*template<typename CellType>
 	void initializeNeighbour(const int neighbourIndex) {
 		neighbours[neighbourIndex] = std::make_shared<CellType>();
-	}
+	}*/
 };

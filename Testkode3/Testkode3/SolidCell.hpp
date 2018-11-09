@@ -2,6 +2,7 @@
 #include "Globals.hpp"
 #include "Cell.hpp"
 #include <iostream>
+#include <algorithm>
 //#include <string>
 //#include "BounceBack.hpp"
 //#include "Dynamics.hpp"
@@ -18,13 +19,37 @@ public:
 	~SolidCell() = default;
 	SolidCell() = default;
 	
+	//*****************************************************************************************
+	// Cell initialization
+
+	void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) override {
+		rho[runIndex] = 0;
+		velocity[runIndex + SpatialDirection::x] = 0;
+		velocity[runIndex + SpatialDirection::y] = 0;
+		populations.fill(0);
+		populationsEq.fill(0);
+	}
+
+
 	void collide(const bool runIndex) override {
 		field_t sourceField;
 
-		for (int direction = 0; direction < nDirections; direction++) {
-			sourceField = getPolulation(runIndex, + direction);
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
+			sourceField = getPolulation(runIndex, cellDirection);
 
-			setPopulation(!runIndex, reverseDirectionIndex(direction), sourceField);
+
+			setPopulation(!runIndex, reverseDirectionIndex(cellDirection), sourceField);
+		}
+	}
+	
+	void collideAndProppagate(const bool runIndex) {
+		field_t sourceField;
+		std::shared_ptr<Cell> targetCell;
+
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
+			sourceField = getPolulation(runIndex, cellDirection);
+			targetCell = neighbours.getNeighbour(cellDirection);
+			targetCell->setPopulation(!runIndex, reverseDirectionIndex(cellDirection), sourceField);
 		}
 	}
 
@@ -32,11 +57,11 @@ public:
 	//	 std::cout << "SolidCell" << std::endl;
 	//}
 
-	char getCellTypeChar() override {
+	char getCellTypeChar() const override {
 		return 'S';
 	}
 
-	CellType getCellType() override{
+	CellType getCellType() const override{
 		return CellType::solidCell;
 	}
 

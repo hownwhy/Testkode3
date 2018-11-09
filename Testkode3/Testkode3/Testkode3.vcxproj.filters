@@ -5,15 +5,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Cell">
+      <UniqueIdentifier>{8fae3b8f-dc88-48f8-94e9-10c130ec0f56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BounceBack.hpp">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BulkCell.hpp">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cell.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Dynamics.hpp">
@@ -28,8 +25,14 @@
     <ClInclude Include="Neighbours.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="BulkCell.hpp">
+      <Filter>Resource Files\Cell</Filter>
+    </ClInclude>
+    <ClInclude Include="Cell.hpp">
+      <Filter>Resource Files\Cell</Filter>
+    </ClInclude>
     <ClInclude Include="SolidCell.hpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Cell</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -20,7 +20,7 @@ public:
 
 	BounceBack() = default;
 
-	void collide(int runIndex, Cell& cell) override{
+	void collide(const bool runIndex, Cell& cell) override{
 		field_t sourceField;
 		//int reverseDirection;
 	

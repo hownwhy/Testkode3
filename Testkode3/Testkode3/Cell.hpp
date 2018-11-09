@@ -13,7 +13,7 @@ enum CellType : int
 	solidCell = 2
 };
 
-enum FieldDirection : int 
+enum SpatialDirection : int 
 {
 	x = 0,
 	y = 1
@@ -48,9 +48,15 @@ public:
 	
 
 	//*****************************************************************************************
+	// Cell initialization
+
+	virtual void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) = 0;
+
+
+	//*****************************************************************************************
 	// Do functions
 
-	void propageteTo(const bool runIndex) {
+	void propageteTo(const bool runIndex) const {
 		field_t sourceField;
 		std::shared_ptr<Cell> targetCell;
 
@@ -63,64 +69,66 @@ public:
 
 	virtual void collide(const bool runIndex) = 0;
 
+	virtual void collideAndProppagate(const bool runIndex) = 0;
+
 	void computeRho(const bool runIndex) {
 		rho[runIndex] =
-			populations[getArrayIndex(runIndex, Direction::east)] +
-			populations[getArrayIndex(runIndex, Direction::northEast)] +
-			populations[getArrayIndex(runIndex, Direction::north)] +
-			populations[getArrayIndex(runIndex, Direction::northWest)] +
-			populations[getArrayIndex(runIndex, Direction::west)] +
-			populations[getArrayIndex(runIndex, Direction::southWest)] +
-			populations[getArrayIndex(runIndex, Direction::south)] +
-			populations[getArrayIndex(runIndex, Direction::southEast)] +
-			populations[getArrayIndex(runIndex, Direction::rest)];			
+			populations[getArrayIndex(runIndex, CellDirection::east)] +
+			populations[getArrayIndex(runIndex, CellDirection::northEast)] +
+			populations[getArrayIndex(runIndex, CellDirection::north)] +
+			populations[getArrayIndex(runIndex, CellDirection::northWest)] +
+			populations[getArrayIndex(runIndex, CellDirection::west)] +
+			populations[getArrayIndex(runIndex, CellDirection::southWest)] +
+			populations[getArrayIndex(runIndex, CellDirection::south)] +
+			populations[getArrayIndex(runIndex, CellDirection::southEast)] +
+			populations[getArrayIndex(runIndex, CellDirection::rest)];			
 	}
 
 	void computeVelocity(const bool runIndex) {
-		velocity[getArrayIndex(runIndex, FieldDirection::x)] =
-			(populations[getArrayIndex(runIndex, Direction::east)] +
-				populations[getArrayIndex(runIndex, Direction::northEast)] +
-				populations[getArrayIndex(runIndex, Direction::southEast)] -
-				populations[getArrayIndex(runIndex, Direction::west)] -
-				populations[getArrayIndex(runIndex, Direction::northWest)] -
-				populations[getArrayIndex(runIndex, Direction::southWest)]) / rho[runIndex];
+		velocity[runIndex + SpatialDirection::x] =
+			(populations[getArrayIndex(runIndex, CellDirection::east)] +
+				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
+				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
+				populations[getArrayIndex(runIndex, CellDirection::west)] -
+				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
+				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
 
-		velocity[getArrayIndex(runIndex, FieldDirection::y)] =
-			(populations[getArrayIndex(runIndex, Direction::north)] +
-				populations[getArrayIndex(runIndex, Direction::northEast)] +
-				populations[getArrayIndex(runIndex, Direction::northWest)] -
-				populations[getArrayIndex(runIndex, Direction::south)] -
-				populations[getArrayIndex(runIndex, Direction::southEast)] -
-				populations[getArrayIndex(runIndex, Direction::southWest)]) / rho[runIndex];
+		velocity[runIndex + SpatialDirection::y] =
+			(populations[getArrayIndex(runIndex, CellDirection::north)] +
+				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
+				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
+				populations[getArrayIndex(runIndex, CellDirection::south)] -
+				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
+				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
 	}
 	
 	void computePopulationsEq(const bool runIndex) {
-		field_t ux = velocity[getArrayIndex(runIndex, FieldDirection::x)];
-		field_t uy = velocity[getArrayIndex(runIndex, FieldDirection::y)];
+		field_t ux = velocity[runIndex + SpatialDirection::x];
+		field_t uy = velocity[runIndex + SpatialDirection::x];
 		field_t uxSqr = ux * ux;
 		field_t uySqr = uy * uy;
 		field_t uxuy = ux * uy;
-		field_t uSqr = sqrt(uxSqr + uySqr);
+		field_t uSqr = uxSqr + uySqr;
 
 		// Weights
-		field_t weightR	= (2 * rho[runIndex]) / 2;	// Rest
+		field_t weightR	= (2 * rho[runIndex]) / 9;	// Rest
 		field_t weightHV	= rho[runIndex] / 18;	// Horizontal/Vertical
 		field_t weightD	= rho[runIndex] / 36;		// Diagonal
 
 		// Calculate the rest equlibrium field component
-		populationsEq[Direction::rest] = weightR * (2 - (3 * uSqr));
+		populationsEq[CellDirection::rest] = weightR * (2 - (3 * uSqr));
 
 		// Calculate horizontal and vertical equlibrium field components
-		populationsEq[Direction::east]	= weightHV * (2 + (6 * ux) + (9 * uxSqr) - (3 * uSqr));
-		populationsEq[Direction::north]	= weightHV * (2 + (6 * uy) + (9 * uySqr) - (3 * uSqr));
-		populationsEq[Direction::west]	= weightHV * (2 - (6 * ux) + (9 * uxSqr) - (3 * uSqr));
-		populationsEq[Direction::south] = weightHV * (2 - (6 * uy) + (9 * uySqr) - (3 * uSqr));
+		populationsEq[CellDirection::east]	= weightHV * (2 + (6 * ux) + (9 * uxSqr) - (3 * uSqr));
+		populationsEq[CellDirection::north]	= weightHV * (2 + (6 * uy) + (9 * uySqr) - (3 * uSqr));
+		populationsEq[CellDirection::west]	= weightHV * (2 - (6 * ux) + (9 * uxSqr) - (3 * uSqr));
+		populationsEq[CellDirection::south] = weightHV * (2 - (6 * uy) + (9 * uySqr) - (3 * uSqr));
 
 		// Calculate diagonal equlibrium field components
-		populationsEq[Direction::northEast] = weightD * (1 + (3 * (ux + uy)) + (9 * uxuy) + (3 * uSqr));
-		populationsEq[Direction::northWest] = weightD * (1 - (3 * (ux - uy)) - (9 * uxuy) + (3 * uSqr));
-		populationsEq[Direction::southWest] = weightD * (1 - (3 * (ux + uy)) + (9 * uxuy) + (3 * uSqr));
-		populationsEq[Direction::southEast] = weightD * (1 + (3 * (ux - uy)) - (9 * uxuy) + (3 * uSqr));
+		populationsEq[CellDirection::northEast] = weightD * (1 + (3 * (ux + uy)) + (9 * uxuy) + (3 * uSqr));
+		populationsEq[CellDirection::northWest] = weightD * (1 - (3 * (ux - uy)) - (9 * uxuy) + (3 * uSqr));
+		populationsEq[CellDirection::southWest] = weightD * (1 - (3 * (ux + uy)) + (9 * uxuy) + (3 * uSqr));
+		populationsEq[CellDirection::southEast] = weightD * (1 + (3 * (ux - uy)) - (9 * uxuy) + (3 * uSqr));
 	}
 
 
@@ -129,8 +137,11 @@ public:
 	void setPopulation(const bool runIndex, const int populationIndex, const field_t fieldValue) {
 		populations[getArrayIndex(runIndex, populationIndex)] = fieldValue;
 	}
-	void setRho(const bool runIndex,const field_t rho_) {
+	void setRho(const bool runIndex, const field_t rho_) {
 		rho[runIndex] = rho_;
+	}
+	void setVelocity(const bool runIndex, const field_t velocity_) {
+		velocity[runIndex] = velocity_;
 	}
 	
 
@@ -146,15 +157,19 @@ public:
 	const field_t getRho(const bool runIndex) const {
 		return rho[runIndex];
 	}
-	virtual char getCellTypeChar() {
+	const field_t getVelocity(const bool runIndex, const SpatialDirection direction) const{
+		return velocity[runIndex + direction];
+	}
+
+	virtual char getCellTypeChar() const{
 		return 'C';
 	}
 
-	virtual CellType getCellType() {
+	virtual CellType getCellType() const{
 		return CellType::cell;
 	}
 
-	//virtual void printClassType() {
+	//virtual void printClassType() const{
 	//	std::cout << "Cell" << std::endl;
 	//}
 };

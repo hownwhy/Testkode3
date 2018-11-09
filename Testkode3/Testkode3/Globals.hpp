@@ -6,7 +6,7 @@ typedef double field_t;
 
 
 
-enum  Direction : int
+enum  CellDirection : int
 {
 	east = 0,
 	northEast = 1,
@@ -20,10 +20,9 @@ enum  Direction : int
 };
 
 
-
 const static int nDirections = 8;
 const static int threeHalfDirection = (3 * nDirections) / 2;
-static int reverseDirectionIndex(int directionIndex) {
+static int reverseDirectionIndex(const int directionIndex) {
 	return (directionIndex + threeHalfDirection) % nDirections;
 }
 

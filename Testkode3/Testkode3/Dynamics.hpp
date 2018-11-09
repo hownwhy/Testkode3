@@ -11,5 +11,5 @@ class Dynamics {
 public:
 	Dynamics() = default;
 
-	virtual void collide(int runIndex, Cell& cell) = 0;
+	virtual void collide(const bool runIndex, Cell& cell) = 0;
 };

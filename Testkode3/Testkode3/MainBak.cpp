@@ -18,8 +18,8 @@
 
 
 void setPoulation(int runIndex, int x, int y) {	
-	for (int p = 0; p < nPopulations; p++) {
-		grid[gridPosition(x, y)]->setPopulation(runIndex, p, p);
+	for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {
+		grid[gridPosition(x, y)]->setPopulation(runIndex, cellDirection, cellDirection);
 	}	
 }
 
@@ -77,44 +77,32 @@ void initializeSolidCellNeighbours(){
 
 
 
-void printCellRho() {
-	std::cout << std::endl;
-	for (int y = 0; y < yDim; y++) {
-		for (int x = 0; x < xDim; x++) {
-			if (grid[gridPosition(x, y)] != nullptr) {
-				std::cout << grid[(y * xDim) + x]->getRho();
-				std::cout << " - ";
-			}
-		}
-		std::cout << std::endl;
-		
-	}
-}
+
 
 //void printCellPopulation(int x, int y) {
 //	std::cout << std::endl;
-//	for (int p = 0; p < 9; p++) {		
-//		std::cout << grid[gridPosition(x, y)]->getPolulation(p);
+//	for (int cellDirection = 0; cellDirection < 9; cellDirection++) {		
+//		std::cout << grid[gridPosition(x, y)]->getPolulation(cellDirection);
 //	}
 //}
 
 void printNeighbourCellPopulation(bool runIndex, int x, int y) {
 	std::cout << std::endl;
-	std::cout << grid[gridPosition(x - 1, y - 1)]->getPolulation(runIndex, Direction::northWest)
-		<< " " << grid[gridPosition(x + 0, y - 1)]->getPolulation(runIndex, Direction::north)
-		<< " " << grid[gridPosition(x + 1, y - 1)]->getPolulation(runIndex, Direction::northEast) << std::endl;
+	std::cout << grid[gridPosition(x - 1, y - 1)]->getPolulation(runIndex, CellDirection::northWest)
+		<< " " << grid[gridPosition(x + 0, y - 1)]->getPolulation(runIndex, CellDirection::north)
+		<< " " << grid[gridPosition(x + 1, y - 1)]->getPolulation(runIndex, CellDirection::northEast) << std::endl;
 	
 	std::cout << " \\|/ " << std::endl;
 
-	std::cout << grid[gridPosition(x - 1, y + 0)]->getPolulation(runIndex, Direction::west)
-		<< "-" << grid[gridPosition(x + 0, y + 0)]->getPolulation(runIndex, Direction::rest)
-		<< "-" << grid[gridPosition(x + 1, y + 0)]->getPolulation(runIndex, Direction::east) << std::endl;
+	std::cout << grid[gridPosition(x - 1, y + 0)]->getPolulation(runIndex, CellDirection::west)
+		<< "-" << grid[gridPosition(x + 0, y + 0)]->getPolulation(runIndex, CellDirection::rest)
+		<< "-" << grid[gridPosition(x + 1, y + 0)]->getPolulation(runIndex, CellDirection::east) << std::endl;
 
 	std::cout << " /|\\ " << std::endl;
 	
-	std::cout << grid[gridPosition(x - 1, y + 1)]->getPolulation(runIndex, Direction::southWest)
-		<< " " << grid[gridPosition(x + 0, y + 1)]->getPolulation(runIndex, Direction::south)
-		<< " " << grid[gridPosition(x + 1, y + 1)]->getPolulation(runIndex, Direction::southEast) << std::endl;
+	std::cout << grid[gridPosition(x - 1, y + 1)]->getPolulation(runIndex, CellDirection::southWest)
+		<< " " << grid[gridPosition(x + 0, y + 1)]->getPolulation(runIndex, CellDirection::south)
+		<< " " << grid[gridPosition(x + 1, y + 1)]->getPolulation(runIndex, CellDirection::southEast) << std::endl;
 }
 
 
