@@ -28,7 +28,7 @@ public:
 		computeRho(runIndex);
 		computeVelocity(runIndex);
 		computePopulationsEq(runIndex);
-		for (int cellDirection = 0; cellDirection < 9; cellDirection++) {
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
 			// Imediate relaxation f[i] = f_eq[i]
 			populations[getArrayIndex(!runIndex, cellDirection)] = populationsEq[getArrayIndex(runIndex, cellDirection)];
 
@@ -47,9 +47,13 @@ public:
 		field_t sourceField;
 		std::shared_ptr<Cell> targetCell;
 
-		for (int cellDirection = 0; cellDirection < 9; cellDirection++) {
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
 			// Imediate relaxation f[i] = f_eq[i]
-			sourceField = populationsEq[getArrayIndex(runIndex, cellDirection)];
+			int arrayIndex = getArrayIndex(runIndex, cellDirection);
+			assert(("collideAndProppagate: arrayIndex is negaive:" , arrayIndex >= 0));
+			assert(("collideAndProppagate: arrayIndex to high", arrayIndex < nFieldDuplicates * nPopulations));
+			sourceField = populationsEq[arrayIndex];
+			//sourceField = populations[arrayIndex];
 			targetCell = neighbours.getNeighbour(cellDirection);
 			
 			
@@ -63,7 +67,7 @@ public:
 	//	std::cout << "BulkCell" << std::endl;
 	//}
 
-	char getCellTypeChar() const override {
+	char getCellTypeChar() const override{
 		return 'B';
 	}
 

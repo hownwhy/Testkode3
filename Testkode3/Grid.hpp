@@ -11,8 +11,8 @@ class Grid {
 
 
 private:
-	static const int xDim = 6;
-	static const int yDim = 6;
+	static const int xDim = 5;
+	static const int yDim = 5;
 
 	std::array<int, xDim * yDim> geometry;
 	std::array<std::shared_ptr<Cell>, xDim * yDim> grid;
@@ -170,6 +170,16 @@ public:
 		for (int y = yMargin; y < yDim - yMargin; y++) {
 			for (int x = xMargin; x < xDim - xMargin; x++) {
 				grid[gridPosition(x, y)]->collide(runIndex);
+			}
+		}
+	}
+
+	void collideAndProppagate(const bool runIndex) const {
+		const int xMargin = 1;
+		const int yMargin = 1;
+		for (int y = yMargin; y < yDim - yMargin; y++) {
+			for (int x = xMargin; x < xDim - xMargin; x++) {
+				grid[gridPosition(x, y)]->collideAndProppagate(runIndex);
 			}
 		}
 	}

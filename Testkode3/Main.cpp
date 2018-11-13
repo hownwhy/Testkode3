@@ -40,8 +40,12 @@ int main() {
 #endif
 
 	grid.gridInitialize(runIndex);
-#if 0	
+	//grid.gridInitialize(!runIndex);
+#if 0
+	std::cout << "Initial population for runIndex" << std::endl;
 	grid.printCellPopulation(runIndex);
+	std::cout << "Initial population for !runIndex" << std::endl;
+	grid.printCellPopulation(!runIndex);
 	system("pause");
 #endif
 
@@ -75,20 +79,30 @@ int main() {
 #endif
 
 #if 1
-	int nRun = 5;
+	int nRun = 50;
+	/*grid.printCellRho(runIndex);
+	grid.printCellRho(!runIndex);
+	system("pause");*/
+	std::cout << "Initial population for runIndex" << std::endl;
+	grid.printCellPopulation(runIndex);
+	std::cout << "Initial population for !runIndex" << std::endl;
+	grid.printCellPopulation(!runIndex);
 	for (int run = 0; run < nRun; run++) {
+		std::cout << "RUN: " << run << std::endl;
+		grid.printCellType();
 		grid.collideAndProppagate(runIndex);
-		//grid.printCellPopulation(runIndex);
-		grid.printCellRho(runIndex);
-		grid.printCellRho(!runIndex);
-		//system("pause");
-
-		grid.propagate(!runIndex);
-		//grid.printCellPopulation(!runIndex);
+		grid.printCellPopulation(!runIndex);
 		grid.printCellRho(runIndex);
 		grid.printCellRho(!runIndex);
 		system("pause");
 		runIndex = !runIndex;
 	}
+#endif
+
+#if 0
+	BulkCell cell;
+	cell.getPolulation(!runIndex, 9);
+	system("pause");
+
 #endif
 }

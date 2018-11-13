@@ -1,6 +1,8 @@
 #pragma once
+#include <assert.h>
 
 typedef double field_t;
+
 
 
 
