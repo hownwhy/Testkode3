@@ -1,6 +1,8 @@
 #pragma once
 #include "Globals.hpp"
 #include "Grid.hpp"
+#include <iostream>
+#include <exception>
 
 
 
@@ -78,7 +80,7 @@ int main() {
 	}
 #endif
 
-#if 1
+#if 0
 	int nRun = 50;
 	/*grid.printCellRho(runIndex);
 	grid.printCellRho(!runIndex);
@@ -104,5 +106,20 @@ int main() {
 	cell.getPolulation(!runIndex, 9);
 	system("pause");
 
+#endif
+
+
+
+#if 1
+	std::array<int, 2> arrayy = { 1,2 };
+	try {
+		arrayy[2] = 0;		
+	}
+	catch(std::exception& e){
+		std::cout << "Catch" << e.what();
+		system("pause");
+	}
+	std::cout << arrayy[2];
+	system("pause");
 #endif
 }
