@@ -61,7 +61,7 @@ namespace UnitTest
 			field_t expectedVelocityY = 0;
 			for (int iPopulation = 0; iPopulation < nPopulationsX2; iPopulation++) {
 				cell.setPopulation(RUNINDEX_0, iPopulation, iPopulation + 0.13);
-				expectedRho += iPopulation + 0.13;
+			//	expectedRho += iPopulation + 0.13;
 			}
 
 

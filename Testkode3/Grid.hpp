@@ -6,29 +6,27 @@
 #include <memory>
 
 
-
 class Grid {
 
-
 private:
-	static const int xDim = 5;
-	static const int yDim = 5;
+	static const int xDim = 6;
+	static const int yDim = 6;
 
 	std::array<int, xDim * yDim> geometry;
 	std::array<std::shared_ptr<Cell>, xDim * yDim> grid;
 
+	
+	//******************************************************************************************************************
+	//******************************************************************************************************************
+	// Grid possition 
+	//******************************************************************************************************************
 
+	// Transforms 2D possition to 1D. A 2D grid can then be represented by a 1D array or vector.
 	inline int gridPosition(const int x_, const int y_) const{
 		return (y_ * xDim) + x_;
 	}
 
-
-	//******************************************************************************************************************
-	//******************************************************************************************************************
-	// Prepare and initialize
-	//******************************************************************************************************************
-
-
+	// Returns the grid possition for a neighbour in a given direction
 	int gridNeigbourPossition(const int x, const int y, const int direction) const {
 
 		int dx = 0;
@@ -53,11 +51,11 @@ private:
 		case CellDirection::south:		dy = +1;
 			break;
 		case CellDirection::southEast:	dx = +1;
-									dy = +1;
+			dy = +1;
 			break;
 		case CellDirection::rest:
 		default:					dx = 0;
-									dy = 0;
+			dy = 0;
 		}
 
 		return gridPosition(x + dx, y + dy);
@@ -66,6 +64,19 @@ private:
 
 public:
 
+	//******************************************************************************************************************
+	//******************************************************************************************************************
+	// Prepare and initialize
+	//******************************************************************************************************************
+
+	// Makes a description of a rectangular box filled with fluid (1 = solid, and 0 = fluid/bulk).
+	// The reulting array "geometry" for a 6 x 5 box will look like this :
+	// 111111
+	// 100001
+	// 100001
+	// 100001
+	// 111111	
+	// -----------------------
 	void makeGeometry() {
 		for (int y = 0; y < yDim; y++) {
 			for (int x = 0; x < xDim; x++) {
@@ -79,7 +90,13 @@ public:
 		}
 	}
 
-
+	// An array of pointers to Cell type objects is filled with BulkCells and SolidCells 
+	// according to the specified geometry.
+	// TODO: To my understanding, this will not ensure that Cell objects are stored in a consecutive manner in memory.
+	// grid[] is an array of addresses, not an array of object data, as far as I understand.
+	// Therefore, I should look into the possibility to allocate space for the objects themselves.
+	// Will it work to allocate space for base class objects, while storing inherited class objects?
+	// TODO: Also include: Neighbour linking through constructor as the cell objects are created.
 	void makeGrid() {
 
 		for (int y = 0; y < yDim; y++) {
@@ -104,7 +121,11 @@ public:
 		}
 	}
 
+	// Assign neighbour cells for each cell object
+	// TODO: Generalize: Giving directions explicitly would probably be quite impractical for 3D implementations. 
 	void linkNeighbours() const {
+		// TODO: The margins were addeed as a quick fix to avoid dealing with wall cell neighbours.
+		// Find a better solution to this problem.
 		const int xMargin = 1;
 		const int yMargin = 1;
 		for (int y = yMargin; y < yDim - yMargin; y++) {
@@ -119,20 +140,9 @@ public:
 				grid[gridPosition(x, y)]->getCellNeighbours().setNeighbour(CellDirection::southEast,	grid[gridNeigbourPossition(x, y, CellDirection::southEast)]);				
 			}
 		}
-	}
+	}	   	
 
-	void setAllRho(const field_t rho) const {
-		const int xMargin = 1;
-		const int yMargin = 1;		
-		for(int runIndex = 0; runIndex < 2; runIndex++){
-			for (int y = yMargin; y < yDim - yMargin; y++) {
-				for (int x = xMargin; x < xDim - xMargin; x++) {
-					grid[gridPosition(x, y)]->setRho(runIndex, rho);
-				}
-			}
-		}
-	}
-
+	// Set rho and velocity for all cells, exxept for the "ghost" cells.
 	void gridInitialize(const bool runIndex) const {
 		const int xMargin = 1;
 		const int yMargin = 1;
@@ -149,11 +159,11 @@ public:
 		}
 	}
 
+	
 	//******************************************************************************************************************
 	//******************************************************************************************************************
 	// Do routines
 	//******************************************************************************************************************
-
 	void propagate(const bool runIndex) const{
 		const int xMargin = 1;
 		const int yMargin = 1;
@@ -174,12 +184,12 @@ public:
 		}
 	}
 
-	void collideAndProppagate(const bool runIndex) const {
+	void collideAndPropagate(const bool runIndex) const {
 		const int xMargin = 1;
 		const int yMargin = 1;
 		for (int y = yMargin; y < yDim - yMargin; y++) {
 			for (int x = xMargin; x < xDim - xMargin; x++) {
-				grid[gridPosition(x, y)]->collideAndProppagate(runIndex);
+				grid[gridPosition(x, y)]->collideAndPropagate(runIndex);
 			}
 		}
 	}
@@ -193,8 +203,6 @@ public:
 			}
 		}
 	}
-
-
 
 	
 	//******************************************************************************************************************
@@ -213,14 +221,13 @@ public:
 	}
 
 	//******************************************************************************************************************
-	// Cell type - print routines
+	// Cell type - print routine
 	void printCellType() const{
 		std::cout << std::endl;
 		for (int y = 0; y < yDim; y++) {
 			for (int x = 0; x < xDim; x++) {
 				if (grid[gridPosition(x, y)] != nullptr) {
 					std::cout << grid[(y * xDim) + x]->getCellTypeChar();
-					//std::cout << " - ";
 				}
 				else {
 					std::cout << "N";
@@ -231,14 +238,12 @@ public:
 		}
 	}
 
-
 	//******************************************************************************************************************
 	// Neighbours - print routines
 	void printNeighboursCellType(const int x, const int y) const{
 		std::shared_ptr<Cell> tempCell;
 		char E, NE, N, NW, W, SW, S, SE, R;
 
-		//std::cout << std::endl;
 
 		if ((tempCell = grid[gridPosition(x, y)]->getCellNeighbours().getNeighbour(CellDirection::east)) != nullptr) {
 			E = tempCell->getCellTypeChar();
@@ -358,8 +363,9 @@ public:
 		}
 	}
 
+
 	//******************************************************************************************************************
-	// Cell rho - print routines
+	// Cell rho - print routine
 	void printCellRho(const bool runIndex) const{
 		std::cout << std::endl;
 		for (int y = 0; y < yDim; y++) {
@@ -373,8 +379,9 @@ public:
 		}
 	}
 
+
 	//******************************************************************************************************************
-	// Cell velocity - print routines
+	// Cell velocity - print routine
 	void printCellVelocity(const bool runIndex) const{
 		std::cout << std::endl;
 		for (int y = 0; y < yDim; y++) {

@@ -4,6 +4,10 @@
 #include <iostream>
 #include <exception>
 
+// !!!!!*************************!!!!!************************************!!!!!
+// The use of hpp files for almost all code in this project is done in order to
+// make code development faster. Most code will be moved to cpp files later on.
+// Templates will remain in the header files.
 
 
 int main() {
@@ -80,20 +84,21 @@ int main() {
 	}
 #endif
 
-#if 0
-	int nRun = 50;
+#if 1
+	int nRun = 10;
 	/*grid.printCellRho(runIndex);
 	grid.printCellRho(!runIndex);
 	system("pause");*/
-	std::cout << "Initial population for runIndex" << std::endl;
+	/*std::cout << "Initial population for runIndex" << std::endl;
 	grid.printCellPopulation(runIndex);
 	std::cout << "Initial population for !runIndex" << std::endl;
-	grid.printCellPopulation(!runIndex);
+	grid.printCellPopulation(!runIndex);*/
+	/*system("pause");*/
 	for (int run = 0; run < nRun; run++) {
 		std::cout << "RUN: " << run << std::endl;
-		grid.printCellType();
-		grid.collideAndProppagate(runIndex);
-		grid.printCellPopulation(!runIndex);
+		//grid.printCellType();
+		grid.collideAndPropagate(runIndex);
+		//grid.printCellPopulation(!runIndex);
 		grid.printCellRho(runIndex);
 		grid.printCellRho(!runIndex);
 		system("pause");
@@ -110,7 +115,7 @@ int main() {
 
 
 
-#if 1
+#if 0
 	std::array<int, 2> arrayy = { 1,2 };
 	try {
 		arrayy[2] = 0;		
@@ -122,4 +127,6 @@ int main() {
 	std::cout << arrayy[2];
 	system("pause");
 #endif
+
+	
 }

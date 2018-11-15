@@ -10,15 +10,15 @@ class Cell;
 class Neighbours {
 
 private:
-	static const int nNeighbours = 8;
+	static const int nNeighbours = nDirections;
 	std::array<std::shared_ptr<Cell>, nNeighbours> neighbours;
 
 public:
-	void setNeighbour(const int neighbourIndex, const std::shared_ptr<Cell> cell) {		
-		//std::cout << "setNeighbour ARRAY_INDEX : " << neighbourIndex << std::endl;
-		assert(("setNeighbour: arrayIndex is negative", neighbourIndex >= 0));
-		assert(("setNeighbour: arrayIndex to high", neighbourIndex < nNeighbours));
-		neighbours[neighbourIndex] = cell;
+	void setNeighbour(const int direction, const std::shared_ptr<Cell> cell) {		
+		//std::cout << "setNeighbour ARRAY_INDEX : " << direction << std::endl;
+		assert(("setNeighbour: arrayIndex is negative", direction >= 0));
+		assert(("setNeighbour: arrayIndex to high", direction < nNeighbours));
+		neighbours[direction] = cell;
 	}	
 
 	std::shared_ptr<Cell> getNeighbour(const int direction) const {
@@ -29,7 +29,7 @@ public:
 	}
 
 	/*template<typename CellType>
-	void initializeNeighbour(const int neighbourIndex) {
-		neighbours[neighbourIndex] = std::make_shared<CellType>();
+	void initializeNeighbour(const int direction) {
+		neighbours[direction] = std::make_shared<CellType>();
 	}*/
 };

@@ -19,16 +19,13 @@ enum SpatialDirection : int
 	y = 1
 };
 
-static const int nPopulations = 9;
-static const int nFieldDuplicates = 2;
-static const int nDimensions = 2;
+static const int nPopulations = 9;		// Number of poulations for species
+static const int nFieldDuplicates = 2;	// Number of field "duplicats" (for temporary storage)(probably no more than 2)
+static const int nDimensions = 2;		
 
 
-
-
-//template<class DYNAMICS>
+// TODO: See what can be done with templates instead of virtual functions
 class Cell {
-
 
 protected:
 	Neighbours neighbours;
@@ -36,40 +33,43 @@ protected:
 	std::array<field_t, nFieldDuplicates * nPopulations> populationsEq;
 	std::array<field_t, nFieldDuplicates> rho;
 	std::array<field_t, nFieldDuplicates * nDimensions> velocity;
-
-
+	
 
 public:
 
-	~Cell() = default;
+	virtual ~Cell() = default;
 	Cell() = default;
 	
-	static inline int getArrayIndex(bool runIndex, int fieldIndex) {
-		return (runIndex * nPopulations) + fieldIndex;
+	// Returns the 1D array index which depend on the 2D (runIndex, direction).
+	static inline int getArrayIndex(bool runIndex, int direction) {
+		return (runIndex * nPopulations) + direction;
 	}
 	//*****************************************************************************************
 	// Cell initialization
 
-	virtual void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) {};
+	virtual void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) = 0;
 
 
 	//*****************************************************************************************
 	// Do functions
 
+	// Propagate populations to neighbouring cells (notice the: !runIndex) used
+	// so that it will not overwrite populations that will be used in the current run (loop).	
+	// TODO: The local variables used for readability may (or may not) decrease performance. Find out. 
 	void propageteTo(const bool runIndex) const {
-		field_t sourceField;
+		field_t currentPopulation;
 		std::shared_ptr<Cell> targetCell;
 
 		for (int direction = 0; direction < nDirections; direction++) {
-			sourceField = populations[getArrayIndex(runIndex, direction)];
+			currentPopulation = populations[getArrayIndex(runIndex, direction)];
 			targetCell = neighbours.getNeighbour(direction);
-			targetCell->setPopulation(!runIndex, direction, sourceField);
+			targetCell->setPopulation(!runIndex, direction, currentPopulation);
 		}
 	}
 
-	virtual void collide(const bool runIndex) {};
+	virtual void collide(const bool runIndex) = 0;
 
-	virtual void collideAndProppagate(const bool runIndex) {};
+	virtual void collideAndPropagate(const bool runIndex) = 0;
 
 	void computeRho(const bool runIndex) {
 		rho[runIndex] =
@@ -100,11 +100,11 @@ public:
 				populations[getArrayIndex(runIndex, CellDirection::south)] -
 				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
 				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
-	}
+	}	
 	
 	void computePopulationsEq(const bool runIndex) {
 		field_t ux = velocity[runIndex + SpatialDirection::x];
-		field_t uy = velocity[runIndex + SpatialDirection::x];
+		field_t uy = velocity[runIndex + SpatialDirection::y];
 		field_t uxSqr = ux * ux;
 		field_t uySqr = uy * uy;
 		field_t uxuy = ux * uy;
@@ -141,9 +141,11 @@ public:
 		assert(("setPopulations: arrayIndex to high", arrayIndex < nFieldDuplicates * nPopulations));
 		populations[arrayIndex] = fieldValue;
 	}
+
 	void setRho(const bool runIndex, const field_t rho_) {
 		rho[runIndex] = rho_;
 	}
+
 	void setVelocity(const bool runIndex, const SpatialDirection direction, const field_t velocity_) {
 		int arrayIndex = runIndex + direction;
 		//std::cout << "setVelocity ARRAY_INDEX : " << arrayIndex << std::endl;;
@@ -154,11 +156,12 @@ public:
 	
 
 	//*****************************************************************************************
-// Get functions
+	// Get functions
 
 	Neighbours &getCellNeighbours() {
 		return neighbours;
 	}
+
 	const field_t getPolulation(const bool runIndex, const int populationIndex) const {
 		int arrayIndex = getArrayIndex(runIndex, populationIndex);
 		//std::cout << "getPopulation ARRAY_INDEX : " << arrayIndex << std::endl;;
@@ -166,29 +169,31 @@ public:
 		assert(("getPopulations: arrayIndex to high", arrayIndex < nFieldDuplicates * nPopulations));
 		return populations[arrayIndex];
 	}
+
 	const field_t getRho(const bool runIndex) const {
 		return rho[runIndex];
 	}
+
 	const field_t getVelocity(const bool runIndex, const SpatialDirection direction) const{
 		return velocity[runIndex + direction];
 	}
+
 
 	virtual char getCellTypeChar() const{
 		return 'C';
 	}
 
+
 	virtual CellType getCellType() const{
 		return CellType::cell;
 	}
 
+
 	const int getNumberOfPopulations() {
 		return nPopulations;
 	}
+
 	const int getNumberOfFieldDuplicates() {
 		return nFieldDuplicates;
-	}
-
-	//virtual void printClassType() const{
-	//	std::cout << "Cell" << std::endl;
-	//}
+	}	
 };
