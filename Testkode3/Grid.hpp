@@ -3,14 +3,16 @@
 #include "Cell.hpp"
 #include "BulkCell.hpp"
 #include "SolidCell.hpp"
+#include <iostream>
+#include <fstream>
 #include <memory>
 
 
 class Grid {
 
 private:
-	static const int xDim = 6;
-	static const int yDim = 6;
+	static const int xDim = 7;
+	static const int yDim = 7;
 
 	std::array<int, xDim * yDim> geometry;
 	std::array<std::shared_ptr<Cell>, xDim * yDim> grid;
@@ -105,7 +107,7 @@ public:
 					grid[gridPosition(x, y)] = std::make_shared<BulkCell>();
 					for (int i = 0; i < nFieldDuplicates; i++) {
 						for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {
-							grid[gridPosition(x, y)]->setPopulation(i, cellDirection, 9);
+							grid[gridPosition(x, y)]->setPopulation(i, cellDirection, 0);
 						}
 					}
 				}
@@ -113,7 +115,7 @@ public:
 					grid[gridPosition(x, y)] = std::make_shared<SolidCell>();
 					for (int i = 0; i < nFieldDuplicates; i++) {
 						for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {
-							grid[gridPosition(x, y)]->setPopulation(i, cellDirection, 8);
+							grid[gridPosition(x, y)]->setPopulation(i, cellDirection, 0);
 						}
 					}
 				}
@@ -396,4 +398,41 @@ public:
 			std::cout << std::endl;
 		}
 	}
+
+
+	//void writePopulationsToFile(const bool runIndex, const std::string filename) const {
+	//	std::ofstream myfile(filename);
+	//			
+	//	if (myfile.is_open())
+	//	{
+	//		myfile << getGridPolulationsList(runIndex);
+	//		myfile.close();
+	//	}
+	//	else std::cout << "Unable to open file";
+	//}
+
+	std::string appendGridPolulationsList(const bool runIndex, std::string& populationLists) const {
+		//std::string populationLists;
+		populationLists += ((populationLists == "") ? "{" : ",\n\n{");
+		for (int y = 0; y < yDim; y++) {
+			populationLists += "{";
+			for (int x = 0; x < xDim; x++) {
+				//if (grid[gridPosition(x, y)] != nullptr) {
+				populationLists += grid[gridPosition(x, y)]->getPopulationsList(runIndex) + ((x < xDim - 1) ? ",\n" : "");
+				//}
+			}
+
+			populationLists += ((y < yDim - 1) ? "},\n\n" : "}");
+		}
+		populationLists += "}";	
+
+		return populationLists;
+		
+	}
+
+	std::shared_ptr<Cell> getCell(const int x, const int y) const{
+		return grid[gridPosition(x, y)];
+	}
+
+	
 };

@@ -2,6 +2,7 @@
 #include "Globals.hpp"
 #include "Neighbours.hpp"
 #include <iostream>
+#include <string>
 #include <array>
 #include <memory>
 
@@ -49,6 +50,12 @@ public:
 
 	virtual void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) = 0;
 
+	void initializeRho(const bool runIndex, const field_t rho_) {
+		rho[runIndex] = rho_;
+		computePopulationsEq(runIndex);
+		//std::copy(populationsEq.at(runIndex * nPopulations), populationsEq.at((runIndex * nPopulations) + nPopulations), populations.at(runIndex * nPopulations));
+		std::copy(populationsEq.begin()+(runIndex * nPopulations), populationsEq.end() - (!runIndex * nPopulations), populations.begin()+(runIndex * nPopulations));
+	}
 
 	//*****************************************************************************************
 	// Do functions
@@ -148,7 +155,7 @@ public:
 
 	void setVelocity(const bool runIndex, const SpatialDirection direction, const field_t velocity_) {
 		int arrayIndex = runIndex + direction;
-		//std::cout << "setVelocity ARRAY_INDEX : " << arrayIndex << std::endl;;
+		std::cout << "setVelocity ARRAY_INDEX : " << arrayIndex << std::endl;;
 		assert(("setVelocity: arrayIndex is negative", arrayIndex >= 0));
 		assert(("setVelocity: arrayIndex to high", arrayIndex < runIndex * nDimensions));
 		velocity[arrayIndex] = velocity_;
@@ -160,6 +167,16 @@ public:
 
 	Neighbours &getCellNeighbours() {
 		return neighbours;
+	}
+
+	const std::string getPopulationsList(const bool runIndex) {
+		std::string temp;
+		temp += "{" + std::to_string(populations[0]);
+		for (int i = 1; i < nPopulations -1; i++) {
+			temp += ", " + std::to_string(populations[i]);
+		}
+		temp += ", " + std::to_string(populations[nPopulations]) + "}";
+		return temp;
 	}
 
 	const field_t getPolulation(const bool runIndex, const int populationIndex) const {
