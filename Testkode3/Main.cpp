@@ -49,6 +49,10 @@ int main() {
 #endif
 
 	grid.makeGrid();
+	/*grid.appendGridPolulationsList(runIndex, outputString);
+	grid.appendGridPolulationsList(!runIndex, outputString);
+	stringToFile(outputString, "testfile.txt");
+	system("pause");*/
 #if 1
 	grid.printCellType();
 	system("pause");
@@ -127,19 +131,35 @@ int main() {
 	//grid.getCell(2, 2)->setRho(runIndex, 3);
 	//grid.getCell(2, 2)->setRho(runIndex, 3);
 	//grid.getCell(2, 2)->setRho(!runIndex, 3);
-	grid.getCell(2, 2)->initializeRho(runIndex, 3);
-	//grid.getCell(2, 2)->getRho(runIndex)
+	//grid.getCell(2, 2)->initializeRho(runIndex, 3);
+	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::x,  0.4);
+	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::y, 0.2);	
+	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::x, 0.4);
+	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::y, 0.2);
+
+	//std::cout << "\n\nInitial population for runIndex" << std::endl;
+	//grid.printCellPopulation(runIndex);
+	//system("pause");
+	//std::cout << "\n\nInitial population for !runIndex" << std::endl;
+	//grid.printCellPopulation(!runIndex);
+	//system("pause");
+
 	outputString = "";
-	//grid.appendGridPolulationsList(!runIndex, outputString);
+	grid.appendGridPolulationsList(runIndex, outputString);
+	stringToFile(outputString, "testfile.txt");
+	system("pause");
+	/*grid.appendGridPolulationsList(!runIndex, outputString);
+	stringToFile(outputString, "testfile.txt");
+	system("pause");*/
 	for (int run = 0; run < nRun; run++) {
 		std::cout << "RUN: " << run << std::endl;
 		//grid.printCellType();		
-		std::cout << "Rho before collide:" << grid.getCell(2, 2)->getRho(runIndex) << "," << grid.getCell(2, 2)->getRho(!runIndex) << "\n";
+		/*std::cout << "Rho before collide:" << grid.getCell(2, 2)->getRho(runIndex) << "," << grid.getCell(2, 2)->getRho(!runIndex) << "\n";
 		grid.collide(runIndex);
 		std::cout << "Rho after collide:" << grid.getCell(2, 2)->getRho(runIndex) << "," << grid.getCell(2, 2)->getRho(!runIndex) << "\n";
-		grid.appendGridPolulationsList(runIndex, outputString);		
+		*/		
 		grid.propagate(runIndex);
-		std::cout << "Rho before propagate:" << grid.getCell(2, 2)->getRho(runIndex) << "," << grid.getCell(2, 2)->getRho(!runIndex) << "\n";
+		std::cout << "Rho after propagate:" << grid.getCell(2, 2)->getRho(runIndex) << "," << grid.getCell(2, 2)->getRho(!runIndex) << "\n";
 		grid.appendGridPolulationsList(!runIndex, outputString);
 		//grid.collideAndPropagate(runIndex);
 		//grid.printCellPopulation(!runIndex);
@@ -147,7 +167,7 @@ int main() {
 		grid.printCellRho(!runIndex);
 		stringToFile(outputString, "testfile.txt");
 		
-		system("pause");
+		//system("pause");
 		
 		runIndex = !runIndex;
 		

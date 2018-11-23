@@ -57,6 +57,13 @@ public:
 		std::copy(populationsEq.begin()+(runIndex * nPopulations), populationsEq.end() - (!runIndex * nPopulations), populations.begin()+(runIndex * nPopulations));
 	}
 
+	void initializeVelocity(const bool runIndex, const SpatialDirection direction, const field_t velocity_) {
+		velocity[runIndex + direction] = velocity_;
+		computePopulationsEq(runIndex);
+		//std::copy(populationsEq.at(runIndex * nPopulations), populationsEq.at((runIndex * nPopulations) + nPopulations), populations.at(runIndex * nPopulations));
+		std::copy(populationsEq.begin() + (runIndex * nPopulations), populationsEq.end() - (!runIndex * nPopulations), populations.begin() + (runIndex * nPopulations));
+	}
+
 	//*****************************************************************************************
 	// Do functions
 
@@ -171,11 +178,13 @@ public:
 
 	const std::string getPopulationsList(const bool runIndex) {
 		std::string temp;
-		temp += "{" + std::to_string(populations[0]);
-		for (int i = 1; i < nPopulations -1; i++) {
-			temp += ", " + std::to_string(populations[i]);
+		temp += "{" + std::to_string(populations[getArrayIndex(runIndex, 0)]);
+		for (int i = 1; i < nPopulations-1; i++) {
+			temp += ", " + std::to_string(populations[getArrayIndex(runIndex, i)]);
+			
 		}
-		temp += ", " + std::to_string(populations[nPopulations]) + "}";
+		
+		temp += ", " + std::to_string(populations[getArrayIndex(runIndex, nPopulations-1)]) + "}";
 		return temp;
 	}
 
