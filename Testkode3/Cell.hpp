@@ -11,7 +11,8 @@ enum CellType : int
 {
 	cell = 0,
 	bulkCell = 1,
-	solidCell = 2
+	solidCell = 2,
+	periodicCell = 3
 };
 
 enum SpatialDirection : int 
@@ -48,7 +49,13 @@ public:
 	//*****************************************************************************************
 	// Cell initialization
 
-	virtual void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) = 0;
+	void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) {
+		rho[runIndex] = rho_;
+		velocity[runIndex + SpatialDirection::x] = xVelocity;
+		velocity[runIndex + SpatialDirection::y] = yVelocity;
+		computePopulationsEq(runIndex);
+		std::copy(populationsEq.begin() + (runIndex * nPopulations), populationsEq.end() - (!runIndex * nPopulations), populations.begin() + (runIndex * nPopulations));
+	}
 
 	void initializeRho(const bool runIndex, const field_t rho_) {
 		rho[runIndex] = rho_;
@@ -58,7 +65,7 @@ public:
 	}
 
 	void initializeVelocity(const bool runIndex, const SpatialDirection direction, const field_t velocity_) {
-		velocity[runIndex + direction] = velocity_;
+		velocity[runIndex * nDimensions + direction] = velocity_;
 		computePopulationsEq(runIndex);
 		//std::copy(populationsEq.at(runIndex * nPopulations), populationsEq.at((runIndex * nPopulations) + nPopulations), populations.at(runIndex * nPopulations));
 		std::copy(populationsEq.begin() + (runIndex * nPopulations), populationsEq.end() - (!runIndex * nPopulations), populations.begin() + (runIndex * nPopulations));
@@ -98,8 +105,8 @@ public:
 			populations[getArrayIndex(runIndex, CellDirection::rest)];			
 	}
 
-	void computeVelocity(const bool runIndex) {
-		velocity[runIndex + SpatialDirection::x] =
+	void computeVelocity(const bool runIndex) {		
+		velocity[runIndex * nDimensions + SpatialDirection::x] =
 			(populations[getArrayIndex(runIndex, CellDirection::east)] +
 				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
 				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
@@ -107,7 +114,7 @@ public:
 				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
 				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
 
-		velocity[runIndex + SpatialDirection::y] =
+		velocity[runIndex * nDimensions + SpatialDirection::y] =
 			(populations[getArrayIndex(runIndex, CellDirection::north)] +
 				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
 				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
@@ -117,8 +124,8 @@ public:
 	}	
 	
 	void computePopulationsEq(const bool runIndex) {
-		field_t ux = velocity[runIndex + SpatialDirection::x];
-		field_t uy = velocity[runIndex + SpatialDirection::y];
+		field_t ux = velocity[runIndex * nDimensions + SpatialDirection::x];
+		field_t uy = velocity[runIndex * nDimensions + SpatialDirection::y];
 		field_t uxSqr = ux * ux;
 		field_t uySqr = uy * uy;
 		field_t uxuy = ux * uy;
@@ -161,10 +168,10 @@ public:
 	}
 
 	void setVelocity(const bool runIndex, const SpatialDirection direction, const field_t velocity_) {
-		int arrayIndex = runIndex + direction;
-		std::cout << "setVelocity ARRAY_INDEX : " << arrayIndex << std::endl;;
+		int arrayIndex = runIndex * nDimensions + direction;
+		std::cout << "setVelocity ARRAY_INDEX : " << arrayIndex << std::endl;
 		assert(("setVelocity: arrayIndex is negative", arrayIndex >= 0));
-		assert(("setVelocity: arrayIndex to high", arrayIndex < runIndex * nDimensions));
+		assert(("setVelocity: arrayIndex to high", arrayIndex < nFieldDuplicates * nDimensions));
 		velocity[arrayIndex] = velocity_;
 	}
 	
@@ -201,9 +208,15 @@ public:
 	}
 
 	const field_t getVelocity(const bool runIndex, const SpatialDirection direction) const{
-		return velocity[runIndex + direction];
+		return velocity[runIndex * nDimensions + direction];
 	}
 
+	const std::string getVelocityList(const bool runIndex) {
+		std::string temp;
+		temp += "{" + std::to_string(velocity[runIndex * nDimensions + SpatialDirection::x]);
+		temp += ", " + std::to_string(velocity[runIndex * nDimensions + SpatialDirection::y]) + "}";
+		return temp;
+	}
 
 	virtual char getCellTypeChar() const{
 		return 'C';

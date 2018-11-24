@@ -11,8 +11,8 @@
 class Grid {
 
 private:
-	static const int xDim = 13;
-	static const int yDim = 13;
+	static const int xDim = 7;
+	static const int yDim = 7;
 
 	std::array<int, xDim * yDim> geometry;
 	std::array<std::shared_ptr<Cell>, xDim * yDim> grid;
@@ -428,6 +428,24 @@ public:
 
 		return populationLists;
 		
+	}
+
+	std::string appendGridVelocityList(const bool runIndex, std::string& velocityLists) const {
+		velocityLists += ((velocityLists == "") ? "{" : ",\n\n{");
+		for (int y = 0; y < yDim; y++) {
+			velocityLists += "{";
+			for (int x = 0; x < xDim; x++) {
+				//if (grid[gridPosition(x, y)] != nullptr) {
+				velocityLists += grid[gridPosition(x, y)]->getVelocityList(runIndex) + ((x < xDim - 1) ? ",\n" : "");
+				//}
+			}
+
+			velocityLists += ((y < yDim - 1) ? "},\n\n" : "}");
+		}
+		velocityLists += "}";
+
+		return velocityLists;
+
 	}
 
 	std::shared_ptr<Cell> getCell(const int x, const int y) const{

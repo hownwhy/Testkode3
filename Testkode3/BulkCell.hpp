@@ -10,29 +10,19 @@ public:
 
 
 	//*****************************************************************************************
-	// Cell initialization
-
-	void initialize(const bool runIndex, const field_t rho_, const field_t xVelocity, const field_t yVelocity) override {
-		rho[runIndex] = rho_;
-		velocity[runIndex + SpatialDirection::x] = xVelocity;
-		velocity[runIndex + SpatialDirection::y] = yVelocity;
-		computePopulationsEq(runIndex);
-		std::copy(populationsEq.begin(), populationsEq.end(), populations.begin());
-	}	
+	// Do functions
 
 	// TODO: Use other relaxation times
-	void collide(const bool runIndex){
+	void collide(const bool runIndex) override{
+		//std::cout << "collide" << std::endl;
 		const int dt = 1;
-		const field_t tau = 1;
+		const field_t tau = 5;
 		computeRho(runIndex);
 		computeVelocity(runIndex);
 		computePopulationsEq(runIndex);
-		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
-			// Imediate relaxation f[i] = f_eq[i]
-			populations[getArrayIndex(!runIndex, cellDirection)] = populationsEq[getArrayIndex(runIndex, cellDirection)];
-
-			/*populations[getArrayIndex(!runIndex, cellDirection)]
-				= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;*/
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {			
+			populations[getArrayIndex(runIndex, cellDirection)]
+				= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;
 		}
 	}
 

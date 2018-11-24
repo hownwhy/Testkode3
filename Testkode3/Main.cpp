@@ -41,6 +41,7 @@ int main() {
 	Grid grid;
 
 	std::string outputString = "";
+	std::string velocityString = "";
 
 	grid.makeGeometry();
 #if 0
@@ -51,11 +52,13 @@ int main() {
 	grid.makeGrid();
 	/*grid.appendGridPolulationsList(runIndex, outputString);
 	grid.appendGridPolulationsList(!runIndex, outputString);
-	stringToFile(outputString, "testfile.txt");
-	system("pause");*/
+	stringToFile(outputString, "testfile.txt");*/
+	//grid.appendGridVelocityList(runIndex, velocityString);
+	//stringToFile(velocityString, "velocity.txt");
+	//system("pause");
 #if 1
 	grid.printCellType();
-	system("pause");
+	//system("pause");
 #endif	
 
 	grid.linkNeighbours();
@@ -115,7 +118,7 @@ int main() {
 	}
 #endif
 
-#if 1
+#if 0
 	int nRun = 10;
 	/*grid.printCellRho(runIndex);
 	grid.printCellRho(!runIndex);
@@ -174,11 +177,48 @@ int main() {
 	}
 #endif
 
-#if 0
-	BulkCell cell;
-	cell.getPolulation(!runIndex, 9);
-	system("pause");
+#if 1
+	int nRun = 10;
+	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::x, 0.2);
+	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::y, 0.3);
+	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::x, 0.0);
+	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::y, 0.0);
 
+	std::cout << std::endl;
+	std::cout << grid.getCell(2, 2)->getVelocity(runIndex, SpatialDirection::x) << "\n";
+	std::cout << grid.getCell(2, 2)->getVelocity(runIndex, SpatialDirection::y) << "\n";
+	std::cout << grid.getCell(2, 2)->getVelocity(!runIndex, SpatialDirection::x) << "\n";
+	std::cout << grid.getCell(2, 2)->getVelocity(!runIndex, SpatialDirection::y) << "\n";
+
+	//grid.printCellVelocity(runIndex);
+	//system("pause");
+
+
+	outputString = "";
+
+	/*grid.appendGridPolulationsList(runIndex, outputString);
+	stringToFile(outputString, "population.txt");
+	grid.appendGridVelocityList(runIndex, velocityString);
+	stringToFile(velocityString, "velocity.txt");*/
+	//system("pause");
+	
+	for (int run = 0; run < nRun; run++) {
+		std::cout << "RUN: " << run << std::endl;
+		grid.collide(runIndex);
+		grid.appendGridPolulationsList(runIndex, outputString);
+		stringToFile(outputString, "population.txt");
+		grid.appendGridVelocityList(runIndex, velocityString);
+		stringToFile(velocityString, "velocity.txt");
+		grid.propagate(runIndex);
+	/*	grid.appendGridPolulationsList(!runIndex, outputString);
+		grid.appendGridVelocityList(!runIndex, velocityString);
+		stringToFile(outputString, "testfile.txt");
+		stringToFile(velocityString, "velocity.txt");*/
+
+		//system("pause");
+
+		runIndex = !runIndex;
+	}
 #endif
 
 

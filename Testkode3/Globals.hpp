@@ -26,6 +26,7 @@ const static int threeHalfDirection = (3 * nDirections) / 2;
 // This is also the reason why I chose to not follow the convension
 // having the rest direction be the 0 direction. 
 inline int reverseDirectionIndex(const int directionIndex) {
+	
 	return (directionIndex + threeHalfDirection) % nDirections;
 }
 
