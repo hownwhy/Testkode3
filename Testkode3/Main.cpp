@@ -135,10 +135,10 @@ int main() {
 	//grid.getCell(2, 2)->setRho(runIndex, 3);
 	//grid.getCell(2, 2)->setRho(!runIndex, 3);
 	//grid.getCell(2, 2)->initializeRho(runIndex, 3);
-	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::x,  0.4);
-	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::y, 0.2);	
-	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::x, 0.4);
-	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::y, 0.2);
+	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::x,  0.6);
+	grid.getCell(2, 4)->initializeVelocity(runIndex, SpatialDirection::y, 0.0);	
+	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::x, 0.6);
+	grid.getCell(2, 4)->initializeVelocity(!runIndex, SpatialDirection::y, 0.0);
 
 	//std::cout << "\n\nInitial population for runIndex" << std::endl;
 	//grid.printCellPopulation(runIndex);
@@ -179,8 +179,8 @@ int main() {
 
 #if 1
 	int nRun = 10;
-	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::x, 0.2);
-	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::y, 0.3);
+	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::x, 0.6);
+	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::y, 0.0);
 	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::x, 0.0);
 	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::y, 0.0);
 
