@@ -8,6 +8,8 @@
 #include <memory>
 
 
+
+
 class Grid {
 
 private:
@@ -33,34 +35,74 @@ private:
 
 		int dx = 0;
 		int dy = 0;
+		int gridPos = 0;
 
-		switch (direction) {
-		case CellDirection::east:		dx = +1;
+		switch (geometry[(y * xDim) + x]) {
+		case CellType::bulkCell:
+		case CellType::solidCell:
+			
+			switch (direction) {
+			case CellDirection::east:		dx = +1;
+				break;
+			case CellDirection::northEast:	dx = +1;
+				dy = -1;
+				break;
+			case CellDirection::north:		dy = -1;
+				break;
+			case CellDirection::northWest:	dx = -1;
+				dy = -1;
+				break;
+			case CellDirection::west:		dx = -1;
+				break;
+			case CellDirection::southWest:	dx = -1;
+				dy = +1;
+				break;
+			case CellDirection::south:		dy = +1;
+				break;
+			case CellDirection::southEast:	dx = +1;
+				dy = +1;
+				break;
+			case CellDirection::rest:
+			default:						dx = 0;
+											dy = 0;
+			}
 			break;
-		case CellDirection::northEast:	dx = +1;
-			dy = -1;
+
+		case CellType::periodicCell:
+			switch (direction) {
+			case CellDirection::east:		(x == xDim - 2) ? dx = -(xDim - 3) : dx = +1;
+				break;
+			case CellDirection::northEast:	(x == xDim - 2) ? dx = -(xDim - 3) : dx = +1;
+											dy = -1;
+				break;
+			case CellDirection::north:		dy = -1;
+				break;
+			case CellDirection::northWest:	(x == 1) ? dx = xDim - 3 : dx = -1;
+				dy = -1;
+				break;
+			case CellDirection::west:		(x == 1) ? dx = xDim - 3 : dx = -1;
+				break;
+			case CellDirection::southWest:	(x == 1) ? dx = xDim - 3 : dx = -1;
+				dy = +1;
+				break;
+			case CellDirection::south:		dy = +1;
+				break;
+			case CellDirection::southEast:	(x == xDim - 2) ? dx = -(xDim - 3) : dx = +1;
+				dy = +1;
+				break;
+			case CellDirection::rest:
+			default:						dx = 0;
+				dy = 0;
+			}
+			
 			break;
-		case CellDirection::north:		dy = -1;
-			break;
-		case CellDirection::northWest:	dx = -1;
-			dy = -1;
-			break;
-		case CellDirection::west:		dx = -1;
-			break;
-		case CellDirection::southWest:	dx = -1;
-			dy = +1;
-			break;
-		case CellDirection::south:		dy = +1;
-			break;
-		case CellDirection::southEast:	dx = +1;
-			dy = +1;
-			break;
-		case CellDirection::rest:
-		default:					dx = 0;
-			dy = 0;
+			
 		}
-
-		return gridPosition(x + dx, y + dy);
+			gridPos = gridPosition(x + dx, y + dy);
+			/*std::cout << "pos (" << x << "," << y << ") : " << "(" << x + dx << ", " << y + dy << ")" << std::endl;
+			system("pause");*/
+		return gridPos;
+		
 	}
 
 
@@ -82,11 +124,14 @@ public:
 	void makeGeometry() {
 		for (int y = 0; y < yDim; y++) {
 			for (int x = 0; x < xDim; x++) {
-				if (y <= 1 || y >= yDim - 2 || x <= 1 || x >= xDim - 2) {
-					geometry[(y * xDim) + x] = 1;
+				if (y <= 1 || y >= yDim - 2 || x <= 0 || x >= xDim - 1) {
+					geometry[(y * xDim) + x] = CellType::solidCell;
+				}
+				else if (x == 1 || x == xDim - 2) {
+					geometry[(y * xDim) + x] = CellType::periodicCell;
 				}
 				else {
-					geometry[(y * xDim) + x] = 0;
+					geometry[(y * xDim) + x] = CellType::bulkCell;
 				}
 			}
 		}
@@ -103,7 +148,7 @@ public:
 
 		for (int y = 0; y < yDim; y++) {
 			for (int x = 0; x < xDim; x++) {
-				if (geometry[gridPosition(x, y)] == 0) {
+				if (geometry[gridPosition(x, y)] == CellType::bulkCell) {
 					grid[gridPosition(x, y)] = std::make_shared<BulkCell>();
 					for (int i = 0; i < nFieldDuplicates; i++) {
 						for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {
@@ -111,7 +156,15 @@ public:
 						}
 					}
 				}
-				else if (geometry[gridPosition(x, y)] == 1) {
+				else if (geometry[gridPosition(x, y)] == CellType::periodicCell) {
+					grid[gridPosition(x, y)] = std::make_shared<BulkCell>();
+					for (int i = 0; i < nFieldDuplicates; i++) {
+						for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {
+							grid[gridPosition(x, y)]->setPopulation(i, cellDirection, 0);
+						}
+					}
+				}
+				else if (geometry[gridPosition(x, y)] == CellType::solidCell) {
 					grid[gridPosition(x, y)] = std::make_shared<SolidCell>();
 					for (int i = 0; i < nFieldDuplicates; i++) {
 						for (int cellDirection = 0; cellDirection < nPopulations; cellDirection++) {

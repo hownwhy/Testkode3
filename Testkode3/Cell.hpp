@@ -7,7 +7,7 @@
 #include <memory>
 
 
-enum CellType : int
+const enum CellType : int
 {
 	cell = 0,
 	bulkCell = 1,
@@ -84,11 +84,25 @@ public:
 		for (int direction = 0; direction < nDirections; direction++) {
 			currentPopulation = populations[getArrayIndex(runIndex, direction)];
 			targetCell = neighbours.getNeighbour(direction);
-			targetCell->setPopulation(!runIndex, direction, currentPopulation);
+			targetCell->setReceived(!runIndex, direction, currentPopulation);
 		}
 	}
 
-	virtual void collide(const bool runIndex) = 0;
+	virtual void setReceived(const bool runIndex, const int populationIndex, const field_t fieldValue) = 0;
+
+	// TODO: Use other relaxation times
+	void collide(const bool runIndex) {
+		//std::cout << "collide" << std::endl;
+		const int dt = 1;
+		const field_t tau = 10;
+		computeRho(runIndex);
+		computeVelocity(runIndex);
+		computePopulationsEq(runIndex);
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
+			populations[getArrayIndex(runIndex, cellDirection)]
+				= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;
+		}
+	}
 
 	virtual void collideAndPropagate(const bool runIndex) = 0;
 
@@ -194,6 +208,7 @@ public:
 		temp += ", " + std::to_string(populations[getArrayIndex(runIndex, nPopulations-1)]) + "}";
 		return temp;
 	}
+
 
 	const field_t getPolulation(const bool runIndex, const int populationIndex) const {
 		int arrayIndex = getArrayIndex(runIndex, populationIndex);

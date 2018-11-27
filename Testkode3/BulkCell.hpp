@@ -12,18 +12,26 @@ public:
 	//*****************************************************************************************
 	// Do functions
 
-	// TODO: Use other relaxation times
-	void collide(const bool runIndex) override{
-		//std::cout << "collide" << std::endl;
-		const int dt = 1;
-		const field_t tau = 5;
-		computeRho(runIndex);
-		computeVelocity(runIndex);
-		computePopulationsEq(runIndex);
-		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {			
-			populations[getArrayIndex(runIndex, cellDirection)]
-				= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;
-		}
+	//// TODO: Use other relaxation times
+	//void collide(const bool runIndex) override{
+	//	//std::cout << "collide" << std::endl;
+	//	const int dt = 1;
+	//	const field_t tau = 10;
+	//	computeRho(runIndex);
+	//	computeVelocity(runIndex);
+	//	computePopulationsEq(runIndex);
+	//	for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {			
+	//		populations[getArrayIndex(runIndex, cellDirection)]
+	//			= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;
+	//	}
+	//}
+
+	void setReceived(const bool runIndex, const int populationIndex, const field_t fieldValue) {
+		int arrayIndex = getArrayIndex(runIndex, populationIndex);
+		//std::cout << "setPopulation ARRAY_INDEX : " << arrayIndex << std::endl;;
+		assert(("setPopulations: arrayIndex is negative", arrayIndex >= 0));
+		assert(("setPopulations: arrayIndex to high", arrayIndex < nFieldDuplicates * nPopulations));
+		populations[arrayIndex] = fieldValue;
 	}
 
 	// The only real difference of collideAndPropagate compared with collide is where the result is stored:

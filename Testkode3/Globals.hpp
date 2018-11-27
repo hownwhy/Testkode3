@@ -6,7 +6,7 @@ typedef double field_t;
 // The "rest" direction has been given the index 8, as opposed to the more usual 0.
 // This was done for compability with the directions indexes starting at east = 0.
 // This might not be necessary.
-enum  CellDirection : int
+const enum  CellDirection : int
 {
 	east = 0,
 	northEast = 1,

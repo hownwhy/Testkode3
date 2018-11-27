@@ -44,7 +44,7 @@ int main() {
 	std::string velocityString = "";
 
 	grid.makeGeometry();
-#if 0
+#if 1
 	grid.printGeometry();
 	system("pause");
 #endif
@@ -178,20 +178,20 @@ int main() {
 #endif
 
 #if 1
-	int nRun = 10;
-	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::x, 0.6);
-	grid.getCell(2, 2)->initializeVelocity(runIndex, SpatialDirection::y, 0.0);
-	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::x, 0.0);
-	grid.getCell(2, 2)->initializeVelocity(!runIndex, SpatialDirection::y, 0.0);
+	int nRun = 20;
+	grid.getCell(3, 3)->initializeVelocity(runIndex, SpatialDirection::x, 0.4);
+	grid.getCell(3, 3)->initializeVelocity(runIndex, SpatialDirection::y, -0.4);
+	grid.getCell(3, 3)->initializeVelocity(!runIndex, SpatialDirection::x, 0.4);
+	grid.getCell(3, 3)->initializeVelocity(!runIndex, SpatialDirection::y, -0.4);
 
 	std::cout << std::endl;
-	std::cout << grid.getCell(2, 2)->getVelocity(runIndex, SpatialDirection::x) << "\n";
-	std::cout << grid.getCell(2, 2)->getVelocity(runIndex, SpatialDirection::y) << "\n";
+	std::cout << grid.getCell(3, 3)->getVelocity(runIndex, SpatialDirection::x) << "\n";
+	std::cout << grid.getCell(3, 3)->getVelocity(runIndex, SpatialDirection::y) << "\n";
 	std::cout << grid.getCell(2, 2)->getVelocity(!runIndex, SpatialDirection::x) << "\n";
 	std::cout << grid.getCell(2, 2)->getVelocity(!runIndex, SpatialDirection::y) << "\n";
 
-	//grid.printCellVelocity(runIndex);
-	//system("pause");
+	/*grid.printCellVelocity(runIndex);
+	system("pause");*/
 
 
 	outputString = "";
@@ -219,6 +219,8 @@ int main() {
 
 		runIndex = !runIndex;
 	}
+	system("pause");
+
 #endif
 
 
