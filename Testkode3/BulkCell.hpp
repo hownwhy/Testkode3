@@ -35,11 +35,12 @@ public:
 	}
 
 	// The only real difference of collideAndPropagate compared with collide is where the result is stored:
+	// TODO: put correct source term in call to "comouteVelocity"
 	void collideAndPropagate(const bool runIndex) override{
 		const int dt = 1;
 		const field_t tau = 1;
 		computeRho(runIndex);
-		computeVelocity(runIndex);
+		computeVelocity(runIndex, { 0,0 });
 		computePopulationsEq(runIndex);
 		field_t currentPopulation;
 		std::shared_ptr<Cell> targetCell;

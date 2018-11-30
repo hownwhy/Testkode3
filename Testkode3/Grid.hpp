@@ -13,8 +13,8 @@
 class Grid {
 
 private:
-	static const int xDim = 7;
-	static const int yDim = 7;
+	static const int xDim = 5;
+	static const int yDim = 30;
 
 	std::array<int, xDim * yDim> geometry;
 	std::array<std::shared_ptr<Cell>, xDim * yDim> grid;

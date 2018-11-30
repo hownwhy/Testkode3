@@ -178,7 +178,7 @@ int main() {
 #endif
 
 #if 1
-	int nRun = 20;
+	int nRun = 30;
 	grid.getCell(3, 3)->initializeVelocity(runIndex, SpatialDirection::x, 0.4);
 	grid.getCell(3, 3)->initializeVelocity(runIndex, SpatialDirection::y, -0.4);
 	grid.getCell(3, 3)->initializeVelocity(!runIndex, SpatialDirection::x, 0.4);

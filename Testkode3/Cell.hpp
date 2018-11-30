@@ -21,9 +21,14 @@ enum SpatialDirection : int
 	y = 1
 };
 
+// TODO: Where should these static constants be? Here it will be accessible to all who include the hpp file.
+// If declareedd as a member, it has to be initialized in a cpp file...
 static const int nPopulations = 9;		// Number of poulations for species
 static const int nFieldDuplicates = 2;	// Number of field "duplicats" (for temporary storage)(probably no more than 2)
 static const int nDimensions = 2;		
+static const int dt = 1;
+static const field_t tau = 0.6;
+static const std::array<field_t, 2> force = { 0.01, 0 };
 
 
 // TODO: See what can be done with templates instead of virtual functions
@@ -35,6 +40,7 @@ protected:
 	std::array<field_t, nFieldDuplicates * nPopulations> populationsEq;
 	std::array<field_t, nFieldDuplicates> rho;
 	std::array<field_t, nFieldDuplicates * nDimensions> velocity;
+	std::array<field_t, nPopulations> sourceTerms;
 	
 
 public:
@@ -91,20 +97,58 @@ public:
 	virtual void setReceived(const bool runIndex, const int populationIndex, const field_t fieldValue) = 0;
 
 	// TODO: Use other relaxation times
+	// TODO: put correct source term in call to "comouteVelocity"
 	void collide(const bool runIndex) {
 		//std::cout << "collide" << std::endl;
-		const int dt = 1;
-		const field_t tau = 10;
 		computeRho(runIndex);
-		computeVelocity(runIndex);
+		computeVelocity(runIndex, force);
 		computePopulationsEq(runIndex);
-		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {
+		for (int cellDirection = 0; cellDirection < nDirections; cellDirection++) {			
 			populations[getArrayIndex(runIndex, cellDirection)]
 				= populations[getArrayIndex(runIndex, cellDirection)] - dt * (populations[getArrayIndex(runIndex, cellDirection)] - populationsEq[getArrayIndex(runIndex, cellDirection)]) / tau;
+			populations[getArrayIndex(runIndex, cellDirection)] += sourceTerms[cellDirection];
 		}
 	}
 
 	virtual void collideAndPropagate(const bool runIndex) = 0;
+
+	void computeSourceTerm(const int runIndex) {
+		static const field_t weightR = 4 / 9;
+		static const field_t weightHV = 1 / 9;
+		static const field_t weightD = 1 / 36;
+		static const field_t dtTauFactorR = 2 * (dt - 2 * tau) / (3 * tau);
+		static const field_t dtTauFactorHV = (dt - 2 * tau) / (6 * tau);
+		static const field_t dtTauFactorD = (dt - 2 * tau) / (24 * tau);
+		static const std::array<field_t, 2> force;
+		static const field_t Fx = force[SpatialDirection::x];
+		static const field_t Fy = force[SpatialDirection::y];
+		static const field_t ux = velocity[SpatialDirection::x];
+		static const field_t uy = velocity[SpatialDirection::y];
+		static const field_t FxUx = Fx * ux;
+		static const field_t FxUy = Fx * uy;
+		static const field_t FyUy = Fy * uy;
+		static const field_t FyUx = Fy * ux;
+
+
+		for (int populationIndex = 0; populationIndex < nPopulations; populationIndex++) {
+
+			// Calculate the rest source field component
+			sourceTerms[CellDirection::rest] = dtTauFactorR * (FxUx + FyUy);
+
+			// Calculate horizontal and vertical source field components
+			sourceTerms[CellDirection::east] = dtTauFactorHV * (FyUy - 2 * FxUx - Fx);
+			sourceTerms[CellDirection::north] = dtTauFactorHV * (FxUx - 2 * FyUy - Fy);
+			sourceTerms[CellDirection::west] = dtTauFactorHV * (FyUy - 2 * FxUx + Fx);
+			sourceTerms[CellDirection::south] = dtTauFactorHV * (FxUx - 2 * FyUy + Fy);
+
+			// Calculate diagonal source field components
+			sourceTerms[CellDirection::northEast] = -dtTauFactorD * (Fx + Fy + 2 * FxUx + 3 * FyUx + 3 * FxUy + 2 * FyUy);
+			sourceTerms[CellDirection::northWest] = -dtTauFactorD * (-Fx + Fy + 2 * FxUx - 3 * FyUx - 3 * FxUy + 2 * FyUy);
+			sourceTerms[CellDirection::southWest] = -dtTauFactorD * (-Fx - Fy + 2 * FxUx + 3 * FyUx + 3 * FxUy + 2 * FyUy);
+			sourceTerms[CellDirection::southEast] = -dtTauFactorD * (Fx - Fy + 2 * FxUx - 3 * FyUx - 3 * FxUy + 2 * FyUy);
+
+		}
+	}
 
 	void computeRho(const bool runIndex) {
 		rho[runIndex] =
@@ -119,22 +163,22 @@ public:
 			populations[getArrayIndex(runIndex, CellDirection::rest)];			
 	}
 
-	void computeVelocity(const bool runIndex) {		
+	void computeVelocity(const bool runIndex, const std::array<field_t, 2> bodyForce) {
 		velocity[runIndex * nDimensions + SpatialDirection::x] =
-			(populations[getArrayIndex(runIndex, CellDirection::east)] +
+			((populations[getArrayIndex(runIndex, CellDirection::east)] +
 				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
 				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
 				populations[getArrayIndex(runIndex, CellDirection::west)] -
 				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
-				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
+				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex]) + bodyForce[SpatialDirection::x]/(2 * rho[runIndex]);
 
 		velocity[runIndex * nDimensions + SpatialDirection::y] =
-			(populations[getArrayIndex(runIndex, CellDirection::north)] +
+			((populations[getArrayIndex(runIndex, CellDirection::north)] +
 				populations[getArrayIndex(runIndex, CellDirection::northEast)] +
 				populations[getArrayIndex(runIndex, CellDirection::northWest)] -
 				populations[getArrayIndex(runIndex, CellDirection::south)] -
 				populations[getArrayIndex(runIndex, CellDirection::southEast)] -
-				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex];
+				populations[getArrayIndex(runIndex, CellDirection::southWest)]) / rho[runIndex]) + bodyForce[SpatialDirection::y] / (2 * rho[runIndex]);
 	}	
 	
 	void computePopulationsEq(const bool runIndex) {
